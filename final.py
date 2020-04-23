@@ -11,6 +11,7 @@ import time
 import pandas as pd
 import sqlite3
 import os
+from sqlalchemy import create_engine
 from datetime import datetime,timedelta
 FA ="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
 
@@ -21,7 +22,8 @@ server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlit
 #server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(server)
-
+engine = create_engine('sqlite:///test.db', echo=False)
+connection= engine.connect()
 
 class User(db.Model):
     __tablename__ = 'datatable'
@@ -127,6 +129,7 @@ def table(rows):
         html.Tbody(html.Tr([html.Td(dev.id),html.Td(dev.stamp),html.Td(dev.devId),html.Td(dev.SPA),html.Td(dev.TA)]))for dev in rows]
     table=dbc.Table(table_header+table_body,bordered=True,striped=True,hover=True,style={"backgroundColor":"white"})
     return table
+
 dropdowns=html.Div([
     html.H4('You can read the data using these dropdown buttons'),
     dcc.Dropdown(
@@ -210,8 +213,8 @@ app.layout = html.Div([dropdowns,select,data1,graph,dcc.Location(id="url",refres
     Output('graph-with-slider', 'figure'),
     [Input('devices', 'value')])#,Input('interval-component', 'n_intervals')])
 def update_figure(selected_device):
-    connection1 = sqlite3.connect('test.db')#,check_same_thread=False)
-    df=pd.read_sql("select * from datatable",connection1)
+#    connection1 = sqlite3.connect('test.db')#,check_same_thread=False)
+    df=pd.read_sql("select * from datatable",connection)
 
     filtered_df = df[df.devId == selected_device]
     print("filtered df=",filtered_df)
@@ -239,6 +242,34 @@ def update_output_div(input_value):
     return [html.Table(table(rows)
         )]
 
+@app.callback(
+        Output('display', 'children'),
+        [Input('devices1', 'value'),Input('options1', 'value'),Input('buttons1','n_clicks')])
+def output(val1,val2,n):
+    if n:
+        client.publish(pubtop,"{} READ:{}".format(val1,val2))
+        return "published for getting {}".format(val2)
+@app.callback(
+        Output('output', 'children'),
+        [Input('device', 'value'),Input('options', 'value'),Input('input2','value'),Input('write button', 'n_clicks')])
+
+def update_output(valueDEV,valueOP,value2,x):
+    print("dev=",valueDEV,"options=",valueOP,"value=",value2)
+    list1=["EAST","WEST","AUTOMODE","MANUALMODE","STOP"]
+    if ((valueOP in list1) and (x is not None)):
+        client.publish(pubtop,"{} WRITE:{}".format(valueDEV,valueOP))
+
+
+        print("executing")
+        return 'You have published "{} write {}"'.format(valueDEV,valueOP)
+
+    elif((value2 != None) and (x is not None)):
+        client.publish(pubtop,"{} WRITE:{}_{}".format(valueDEV,valueOP,value2))
+    
+  
+        return 'You have published "{} {} write {}"'.format(valueDEV,valueOP,value2)
+
+        
 if __name__=="__main__":
 #    print("main starts")
     app.run_server(debug=True,port=443)
