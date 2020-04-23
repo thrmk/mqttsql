@@ -1,1 +1,1 @@
-web: gunicorn latest:server
+web: gunicorn final:server
