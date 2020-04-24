@@ -272,4 +272,4 @@ def update_output(valueDEV,valueOP,value2,x):
         
 if __name__=="__main__":
 #    print("main starts")
-    app.run_server(debug=True,port=443)
+    app.run_server(debug=False)
