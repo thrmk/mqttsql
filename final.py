@@ -22,7 +22,7 @@ server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlit
 #server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(server)
-engine = create_engine('sqlite:///test.db', echo=False)
+engine = create_engine(os.environ.get('DATABASE_URL', 'sqlite:///test.db'), echo=False)
 connection= engine.connect()
 
 class User(db.Model):
