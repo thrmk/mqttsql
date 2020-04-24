@@ -112,7 +112,7 @@ html.Div(id='dd-output-container')
 
 data1= html.Div([
         #html.H4('Substation Data Live Feed'),
-        html.Table(id="live-update-text"),],style={"overflowX":"scroll"})
+        html.Table(id="live-update-text"),],style={"overflowY":"scroll"})
 
 app = dash.Dash(__name__,server=server,external_stylesheets=[dbc.themes.BOOTSTRAP, FA])
 
