@@ -42,7 +42,7 @@ MarkupSafe==1.1.1
 monotonic==1.5
 MqttSqliteLogger==1.0
 mysql-connector-python==8.0.19
-numpy==1.16.6
+numpy==1.22.0
 paho-mqtt==1.5.0
 pandas==0.24.2
 parse==1.15.0
